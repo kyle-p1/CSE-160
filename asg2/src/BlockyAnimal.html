@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Kyle Pabellano asg2</title>
+  </head>
+
+  <body onload="main()">
+    <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+    </canvas>
+    <p>
+        <p id = "numdot"> XXX </p>
+        <p>
+            Drag on the canvas to rotate. Shift + click to "poke."
+        </p>
+    </p>
+    <p>
+        Walking Animation:
+        <button id="walkAnimationOnButton">ON</button>
+        <button id="walkAnimationOffButton">OFF</button>
+    </p>
+    
+    <p>
+        Head <input type="range" id="headSlider" min="-45" max="45" value="0" class="slider"/>
+        Animation:
+        <button id ="headAnimationOnButton">ON</button>
+        <button id ="headAnimationOffButton">OFF</button>
+    </p>
+    <p>
+        Tail <input type="range" id="tailSlider" min="-45" max="45" value="0" class="slider"/>
+        Animation:
+        <button id ="tailAnimationOnButton">ON</button>
+        <button id ="tailAnimationOffButton">OFF</button>
+    </p>
+
+    <p>
+        Camera X: <input type="range" id="xSlider" min="-90" max="90" value="0" class="slider"/>
+    </p>
+    <p>
+        Camera Y: <input type="range" id="ySlider" min="-180" max="180" value="0" class="slider"/>
+    </p>
+    
+    <script src="lib/webgl-utils.js"></script>
+    <script src="lib/webgl-debug.js"></script>
+    <script src="lib/cuon-utils.js"></script>
+    <script src="lib/cuon-matrix-cse160.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Cube.js"></script>
+    <script src="Cylinder.js"></script>
+    <script src="BlockyAnimal.js"></script>
+  </body>
+</html>
