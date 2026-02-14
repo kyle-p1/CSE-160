@@ -58,7 +58,7 @@ let g_startTime = performance.now();
 let g_seconds = 0;
 
 // camera
-let camPos = new Vector3([16, 2, 28]);
+let camPos = new Vector3([16, 1.5, 28]);
 let yaw = 180;
 let pitch = 0;
 let moveSpeed = 0.15;
@@ -69,7 +69,7 @@ let keys = Object.create(null);
 
 // world
 const WORLD_SIZE = 32;
-const WORLD_H = 8;
+const WORLD_H = 4;
 let map = [];
 let needsRebuild = true;
 let walls = [];
@@ -313,7 +313,7 @@ function buildMap32() {
     map.push(row);
   }
 
-  const H = 6;
+  const H = 4;
 
   for (let x = 0; x < WORLD_SIZE; x++) {
     map[x][0] = H;
@@ -328,7 +328,8 @@ function buildMap32() {
     for (let x = x1; x <= x2; x++) {
       for (let z = z1; z <= z2; z++) {
         if (x > 0 && z > 0 && x < WORLD_SIZE - 1 && z < WORLD_SIZE - 1) {
-          map[x][z] = H;
+          let randH = 3 + Math.floor(Math.random() * 3);
+          map[x][z] = randH;
         }
       }
     }
