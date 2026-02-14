@@ -406,7 +406,7 @@ function pickBlock() {
   const f = getForwardDir();
   let prevX = null, prevY = null, prevZ = null;
 
-  for (let t = 0.2; t <= MAX_REACH; t += 0.1) {
+  for (let t = 0.2; t <= MAX_REACH; t += 0.05) {
     const px = camPos.elements[0] + f.elements[0] * t;
     const py = camPos.elements[1] + f.elements[1] * t;
     const pz = camPos.elements[2] + f.elements[2] * t;
@@ -418,7 +418,8 @@ function pickBlock() {
     if (x === prevX && y === prevY && z === prevZ) continue;
 
     if (hasBlock(x, y, z)) {
-      return { hit: { x, y, z } };
+      const place = (prevX === null) ? null : { x: prevX, y: prevY, z: prevZ };
+      return { hit: { x, y, z }, place };
     }
 
     prevX = x; prevY = y; prevZ = z;
@@ -427,38 +428,63 @@ function pickBlock() {
   return null;
 }
 
+
 // stack add/remove (top only)
 function editBlock(add) {
-  const f = getForwardDir();
+  const pick = pickBlock();
 
-  for (let t = 0.2; t <= MAX_REACH; t += 0.1) {
-    const px = camPos.elements[0] + f.elements[0] * t;
-    const py = camPos.elements[1] + f.elements[1] * t;
-    const pz = camPos.elements[2] + f.elements[2] * t;
+  if (add) {
+    // Case 1: aiming at a block -> place in the air cell right before it
+    if (pick && pick.place) {
+      const { x, y, z } = pick.place;
+      if (!inBoundsXZ(x, z)) return;
+
+      const h = heightAt(x, z);
+      if (h >= WORLD_H) return;
+
+      // stack-only rule: can only place if the air cell is exactly on top of the column
+      if (y !== h) return;
+
+      map[x][z] = h + 1;
+      needsRebuild = true;
+      return;
+    }
+
+    // Case 2: aiming at nothing -> fallback place in front (but avoid placing on own column)
+    const f = getForwardDir();
+    const px = camPos.elements[0] + f.elements[0] * 1.5;
+    const pz = camPos.elements[2] + f.elements[2] * 1.5;
 
     const x = Math.floor(px);
-    const y = Math.floor(py);
     const z = Math.floor(pz);
 
-    if (!inBoundsXZ(x, z)) continue;
+    if (!inBoundsXZ(x, z)) return;
+
+    const selfX = Math.floor(camPos.elements[0]);
+    const selfZ = Math.floor(camPos.elements[2]);
+    if (x === selfX && z === selfZ) return;
 
     const h = heightAt(x, z);
+    if (h >= WORLD_H) return;
 
-    if (add) {
-      if (y === h && h < WORLD_H) {
-        map[x][z] = h + 1;
-        needsRebuild = true;
-        return;
-      }
-    } else {
-      if (y === h - 1 && h > 0) {
-        map[x][z] = h - 1;
-        needsRebuild = true;
-        return;
-      }
-    }
+    map[x][z] = h + 1;
+    needsRebuild = true;
+    return;
   }
+
+  // delete: only delete top of the column you hit
+  if (!pick) return;
+  const { x, y, z } = pick.hit;
+  if (!inBoundsXZ(x, z)) return;
+
+  const h = heightAt(x, z);
+  if (h <= 0) return;
+  if (y !== h - 1) return;
+
+  map[x][z] = h - 1;
+  needsRebuild = true;
 }
+
 
 function updatePigAnimation() {
   if (g_headAnimation) g_headAngle = 12 * Math.sin(g_seconds);
