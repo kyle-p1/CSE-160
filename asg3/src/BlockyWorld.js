@@ -58,7 +58,7 @@ let g_startTime = performance.now();
 let g_seconds = 0;
 
 // camera
-let camPos = new Vector3([16, 1.5, 28]);
+let camPos = new Vector3([15, 1, 30]);
 let yaw = 180;
 let pitch = 0;
 let moveSpeed = 0.15;
@@ -293,8 +293,8 @@ function updateCamera(dt) {
   if (keys[" "]) camPos.elements[1] += speed;
   if (keys["shift"]) camPos.elements[1] -= speed;
 
-  camPos.elements[0] = clamp(camPos.elements[0], 1, WORLD_SIZE - 2);
-  camPos.elements[2] = clamp(camPos.elements[2], 1, WORLD_SIZE - 2);
+  camPos.elements[0] = clamp(camPos.elements[0], 1.25, WORLD_SIZE - 1.25);
+  camPos.elements[2] = clamp(camPos.elements[2], 1.25, WORLD_SIZE - 1.25);
   camPos.elements[1] = clamp(camPos.elements[1], 1, 20);
 }
 
@@ -328,7 +328,7 @@ function buildMap32() {
     for (let x = x1; x <= x2; x++) {
       for (let z = z1; z <= z2; z++) {
         if (x > 0 && z > 0 && x < WORLD_SIZE - 1 && z < WORLD_SIZE - 1) {
-          let randH = 3 + Math.floor(Math.random() * 3);
+          let randH = 1 + Math.floor(Math.random() * 3);
           map[x][z] = randH;
         }
       }
@@ -488,18 +488,20 @@ function renderAll() {
   gl.uniformMatrix4fv(u_ViewMatrix, false, view.elements);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, proj.elements);
 
-  // sky
-  if (texturesReady) {
+// sky
+  {
     gl.disable(gl.CULL_FACE);
 
     let sky = new Cube();
-    sky.textureUnit = 2;
-    sky.texColorWeight = 1.0;
-    sky.color = [0.4, 0.6, 1.0, 1.0];
+    sky.textureUnit = 0;  
+    sky.texColorWeight = 0.0;  
+    sky.color = [0.5, 0.8, 0.9, 1.0]; 
+
     sky.matrix.setIdentity();
     sky.matrix.translate(WORLD_SIZE / 2, 10, WORLD_SIZE / 2);
     sky.matrix.scale(200, 200, 200);
     sky.matrix.translate(-0.5, -0.5, -0.5);
+
     gl.uniform1f(u_UVScale, 1.0);
     sky.render();
 
@@ -767,11 +769,9 @@ async function initAllTextures() {
   try {
     const wall = await loadImageAsync("../textures/wall.png");
     const grass = await loadImageAsync("../textures/grass.png");
-    const sky = await loadImageAsync("../textures/sky.png");
 
     loadTextureToUnit(0, wall);
     loadTextureToUnit(1, grass);
-    loadTextureToUnit(2, sky);
 
     texturesReady = true;
     needsRebuild = true;
